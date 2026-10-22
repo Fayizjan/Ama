@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دليل استخراج PIN - الأمانات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #f37021;
+            --primary-dark: #d95d15;
+            --primary-light: #fff3ec;
+            --bg: #f8fafc;
+            --text: #0f172a;
+            --text-soft: #475569;
+            --border: #e2e8f0;
+            --white: #ffffff;
+            --success: #10b981;
+            --danger: #ef4444;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        body.dark {
+            --bg: #0f172a;
+            --text: #f1f5f9;
+            --text-soft: #cbd5e1;
+            --border: #334155;
+            --white: #1e293b;
+            --primary-light: #2a1e16;
+            --shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.8;
+            padding: 20px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        /* زر الوضع الليلي */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+        .theme-toggle:hover { transform: scale(1.1); }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+        .header h1 { color: var(--primary); margin: 0 0 8px; font-size: 26px; }
+        .header p { color: var(--text-soft); margin: 0; font-weight: 600; font-size: 14px; }
+
+        .step {
+            background: var(--bg);
+            border-right: 4px solid var(--primary);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            transition: background 0.3s;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: var(--primary-dark);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .example-box {
+            background: var(--primary-light);
+            border: 1px solid var(--primary);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 15px;
+            color: var(--text);
+        }
+        .example-box strong { color: var(--primary); }
+        .example-box ul { margin: 10px 0 10px 20px; padding: 0; }
+        .example-box li { margin-bottom: 5px; }
+        
+        .final-pin {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--success);
+            margin-top: 10px;
+            padding: 10px;
+            background: var(--white);
+            border-radius: 8px;
+            border: 2px dashed var(--success);
+            letter-spacing: 3px;
+        }
+
+        .calculator {
+            background: var(--bg);
+            border: 2px dashed var(--primary);
+            padding: 25px 20px;
+            border-radius: 16px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        .calculator h2 { margin-top: 0; color: var(--primary); font-size: 22px; }
+        
+        .input-group {
+            margin-bottom: 15px;
+            text-align: right;
+        }
+        .input-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text);
+        }
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 16px;
+            background: var(--white);
+            color: var(--text);
+            transition: 0.3s;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .btn-calc {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            width: 100%;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(243, 112, 33, 0.3);
+        }
+        .btn-calc:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(243, 112, 33, 0.4); }
+        .btn-calc:active { transform: scale(0.98); }
+
+        .result-box {
+            margin-top: 20px;
+            display: none;
+            background: var(--white);
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid var(--primary);
+            animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .result-box.show { display: block; }
+        .result-number {
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--primary);
+            letter-spacing: 8px;
+            margin-top: 5px;
+            direction: ltr;
+        }
+        @keyframes pop {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .note {
+            background: rgba(239, 68, 68, 0.1);
+            border-right: 4px solid var(--danger);
+            padding: 15px;
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 13.5px;
+            margin-top: 25px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- زر الوضع الليلي -->
+        <button class="theme-toggle" id="themeToggle" title="تبديل الوضع الليلي">🌙</button>
+
+        <div class="header">
+            <h1>🏦 استخراج PIN يدوياً</h1>
+            <p>طريقة مبسطة وآمنة - للحالات الطارئة</p>
+        </div>
+
+        <div class="step">
+            <h3>1️⃣ اجمع الأرقام</h3>
+            <p>استخدم الآلة الحاسبة في هاتفك لتطبيق المعادلة التالية:</p>
+            <ul style="margin-right: 20px; margin-top: 10px;">
+                <li><strong>(رقم اليوم × رقم الشهر × 7)</strong></li>
+                <li><strong>+ (آخر خانتين من السنة × 13)</strong></li>
+                <li><strong>+ 2026</strong></li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h3>2️⃣ استخرج الكود</h3>
+            <p>بمجرد أن يظهر لك المجموع النهائي (سيكون رقماً كبيراً)، <strong>خذ آخر 4 أرقام فقط</strong> من هذا الرقم (من جهة اليسار).<br>
+            <em style="color: var(--text-soft); font-size: 13px;">(إذا كان الرقم أقل من 4 خانات، أضف أصفاراً في البداية، مثلاً 3764).</em></p>
+        </div>
+
+        <div class="example-box">
+            <h3 style="margin-top:0; color: var(--primary);">💡 مثال عملي: يوم 20 أكتوبر 2026</h3>
+            <ul>
+                <li>رقم اليوم = <strong>20</strong></li>
+                <li>رقم الشهر = <strong>10</strong></li>
+                <li>آخر خانتين من السنة = <strong>26</strong></li>
+                <li>الحساب: (20 × 10 × 7) = <strong>1400</strong></li>
+                <li>الحساب: (26 × 13) = <strong>338</strong></li>
+                <li>الجمع: 1400 + 338 + 2026 = <strong>3764</strong></li>
+            </ul>
+            <div class="final-pin">3764</div>
+        </div>
+
+        <div class="calculator">
+            <h2>🧮 احسبها تلقائياً</h2>
+            <p style="font-size: 13px; color: var(--text-soft); margin-bottom: 15px;">أدخل التاريخ، وسنقوم نحن بالباقي:</p>
+            
+            <div class="input-group">
+                <label>اختر التاريخ:</label>
+                <input type="date" id="calcDate">
+            </div>
+            <button class="btn-calc" onclick="calculatePIN()">استخراج الكود الآن</button>
+
+            <div class="result-box" id="resultBox">
+                <p style="margin: 0 0 5px; font-weight: 700; font-size: 14px;">كود الاسترداد لهذا اليوم:</p>
+                <div class="result-number" id="pinResult">----</div>
+            </div>
+        </div>
+
+        <div class="note">
+            ⚠️ تنبيه أمني: احتفظ بهذا الملف في مكان آمن، ولا تشاركه مع أي شخص غير موثوق. هذا الملف هو خط الدفاع الأخير لاستعادة بياناتك.
+        </div>
+    </div>
+
+    <script>
+        // 1. إعداد الوضع الليلي
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        // التحقق من الوضع المحفوظ
+        if (localStorage.getItem('amanat_theme') === 'dark') {
+            body.classList.add('dark');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            if (body.classList.contains('dark')) {
+                themeToggle.textContent = '☀️';
+                localStorage.setItem('amanat_theme', 'dark');
+            } else {
+                themeToggle.textContent = '🌙';
+                localStorage.setItem('amanat_theme', 'light');
+            }
+        });
+
+        // 2. تعيين تاريخ اليوم تلقائياً في الآلة الحاسبة
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('calcDate').value = `${yyyy}-${mm}-${dd}`;
+        });
+
+        // 3. دالة حساب الـ PIN
+        function calculatePIN() {
+            const dateInput = document.getElementById('calcDate').value;
+            if (!dateInput) { alert('الرجاء اختيار تاريخ'); return; }
+
+            const date = new Date(dateInput);
+            const day = date.getDate();
+            const month = date.getMonth() + 1;
+            const year = date.getFullYear() % 100;
+
+            // المعادلة الرياضية
+            const total = ((day * month * 7) + (year * 13) + 2026);
+            
+            // استخراج آخر 4 أرقام (باقي القسمة على 10000)
+            const pin = total % 10000;
+
+            // عرض النتيجة مع ضمان أنها 4 أرقام
+            const formattedPin = String(pin).padStart(4, '0');
+
+            document.getElementById('pinResult').textContent = formattedPin;
+            document.getElementById('resultBox').classList.add('show');
+        }
+    </script>
+</body>
+</html>
