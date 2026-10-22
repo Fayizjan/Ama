@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مولد PIN - الأمانات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #0f172a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: #1e293b;
+            border-radius: 24px;
+            padding: 35px 30px 30px;
+            max-width: 340px;
+            width: 100%;
+            border: 1px solid rgba(243, 112, 33, 0.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        .logo { font-size: 40px; display: block; margin-bottom: 4px; }
+        .title { font-size: 20px; font-weight: 900; color: #f37021; }
+        .subtitle { font-size: 12px; color: #94a3b8; margin-bottom: 20px; }
+        .divider { width: 40px; height: 2px; background: linear-gradient(90deg, transparent, #f37021, transparent); margin: 4px auto 20px; border-radius: 2px; }
+
+        .pin-display {
+            background: #0f172a;
+            border: 2px solid rgba(243, 112, 33, 0.2);
+            border-radius: 16px;
+            padding: 20px 18px 16px;
+            margin-bottom: 16px;
+            transition: border-color 0.3s;
+            cursor: default;
+        }
+        .pin-label { font-size: 12px; color: #94a3b8; letter-spacing: 1px; margin-bottom: 4px; }
+        .pin-number-wrapper {
+            cursor: pointer; padding: 12px 0 10px; margin: 0 0 4px;
+            border-radius: 12px; transition: background 0.3s;
+            min-height: 90px; display: flex; align-items: center; justify-content: center;
+        }
+        .pin-number-wrapper:hover { background: rgba(243, 112, 33, 0.05); }
+        .pin-number {
+            font-size: 68px; font-weight: 900; font-family: 'Courier New', monospace;
+            letter-spacing: 14px; color: #f37021; transition: all 0.3s ease;
+            pointer-events: none; line-height: 1.2;
+        }
+        
+        /* تأثير الزجاج المصنفر */
+        .pin-number.blurred {
+            color: transparent; text-shadow: none;
+            background: linear-gradient(135deg, rgba(243, 112, 33, 0.04) 0%, rgba(243, 112, 33, 0.16) 25%, rgba(243, 112, 33, 0.04) 50%, rgba(243, 112, 33, 0.16) 75%, rgba(243, 112, 33, 0.04) 100%);
+            background-size: 300% 300%; border-radius: 12px;
+            backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            animation: shimmer 4s ease-in-out infinite; letter-spacing: 14px;
+            padding: 4px 20px; min-height: 80px; display: flex; align-items: center; justify-content: center;
+        }
+        .pin-number.blurred .pin-digits { opacity: 0; filter: blur(24px); transform: scale(0.9); transition: none; }
+        .pin-number .pin-digits { opacity: 1; filter: blur(0); transform: scale(1); transition: all 0.4s ease; }
+        @keyframes shimmer { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        .pin-actions { display: flex; justify-content: center; gap: 14px; margin-top: 4px; }
+        .btn-icon {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px; padding: 8px 18px; color: #94a3b8; font-size: 13px;
+            cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 6px;
+            font-family: 'Cairo', sans-serif; font-weight: 700;
+        }
+        .btn-icon:hover { background: rgba(255, 255, 255, 0.1); color: #e2e8f0; }
+        .btn-icon.copy-btn { color: #3b82f6; border-color: rgba(59, 130, 246, 0.3); }
+        .btn-icon.copy-btn:hover { background: rgba(59, 130, 246, 0.1); border-color: #3b82f6; }
+        .btn-icon.refresh-btn { color: #f59e0b; border-color: rgba(245, 158, 11, 0.3); }
+        .btn-icon.refresh-btn:hover { background: rgba(245, 158, 11, 0.1); border-color: #f59e0b; }
+
+        .date-display { font-size: 13px; color: #64748b; padding: 6px; background: rgba(255, 255, 255, 0.02); border-radius: 8px; margin-bottom: 2px; font-weight: 700; }
+        .footer { margin-top: 14px; font-size: 10px; color: #334155; letter-spacing: 0.5px; font-weight: 700; }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: rgba(243, 112, 33, 0.15); backdrop-filter: blur(16px);
+            padding: 12px 28px; border-radius: 10px; border: 1px solid #f37021;
+            color: #f37021; font-size: 14px; font-weight: 700; transition: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            opacity: 0; pointer-events: none; z-index: 999; text-align: center;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <span class="logo">🏦</span>
+        <div class="title">مولد PIN - الأمانات</div>
+        <div class="subtitle">مفتاح استرداد نسيت الرمز</div>
+        <div class="divider"></div>
+
+        <div class="pin-display" id="pinDisplay">
+            <div class="pin-label">🔑 كود الاسترداد لليوم</div>
+            <div class="pin-number-wrapper" id="pinWrapper" onclick="togglePIN()">
+                <div class="pin-number blurred" id="pinNumber">
+                    <span class="pin-digits">----</span>
+                </div>
+            </div>
+            <div class="pin-actions">
+                <button class="btn-icon copy-btn" onclick="copyPIN()">📋 نسخ</button>
+                <button class="btn-icon refresh-btn" onclick="generatePIN()">🔄 تحديث</button>
+            </div>
+        </div>
+
+        <div class="date-display" id="dateDisplay">📅 جاري التحميل...</div>
+        <div class="footer">🔒 هذا الملف مستقل وآمن</div>
+    </div>
+
+    <div class="toast" id="toast">✅ تم النسخ</div>
+
+    <script>
+        let currentPIN = '';
+        let isShowing = false;
+
+        // ⚠️ المعادلة الجديدة الخاصة بالأمانات (أضفنا 2026 لتغيير الناتج)
+        function generateTodayPIN() {
+            const now = new Date();
+            const day = now.getDate();
+            const month = now.getMonth() + 1;
+            const year = now.getFullYear() % 100;
+            // المعادلة المعدلة
+            const pin = (day * month * 7 + year * 13 + 2026) % 9000 + 1000; 
+            return pin.toString();
+        }
+
+        function generatePIN() {
+            const pin = generateTodayPIN();
+            currentPIN = pin;
+            const pinEl = document.getElementById('pinNumber');
+            const digitsSpan = pinEl.querySelector('.pin-digits');
+            digitsSpan.textContent = pin;
+
+            if (!isShowing) { pinEl.classList.add('blurred'); } else { pinEl.classList.remove('blurred'); }
+
+            const now = new Date();
+            document.getElementById('dateDisplay').textContent = 
+                `📅 ${now.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+
+            document.getElementById('pinDisplay').classList.toggle('showing', isShowing);
+        }
+
+        function togglePIN() {
+            isShowing = !isShowing;
+            const pinEl = document.getElementById('pinNumber');
+            if (isShowing) { pinEl.classList.remove('blurred'); } else { pinEl.classList.add('blurred'); }
+        }
+
+        function copyPIN() {
+            if (!currentPIN) { showToast('⚠️ لا يوجد PIN للنسخ'); return; }
+            navigator.clipboard.writeText(currentPIN).then(() => {
+                showToast('✅ تم نسخ كود الأمانات: ' + currentPIN);
+            }).catch(() => {
+                const textArea = document.createElement('textarea');
+                textArea.value = currentPIN;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('✅ تم نسخ كود الأمانات: ' + currentPIN);
+            });
+        }
+
+        let toastTimeout = null;
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            generatePIN();
+        });
+    </script>
+</body>
+</html>
